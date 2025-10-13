@@ -3,7 +3,8 @@ from datetime import datetime
 from database import Base
 
 class Recipe(Base):
-    tablename = "recipes"
+    
+    __tablename__ = "recipes"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
@@ -19,7 +20,7 @@ class Recipe(Base):
     tags = Column(String)
 
 class Authorities(Base):
-    tablename = "authorities"
+    __tablename__ = "authorities"
 
     id = Column(Integer, primary_key=True, index=True)
     client_id = Column(String, unique=True, index=True)
