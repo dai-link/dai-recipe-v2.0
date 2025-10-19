@@ -2,12 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 import models, schemas
+from jwt import verify_access_token
 
 router = APIRouter(tags=["Recipes"])
 
 # Get all recipes
 @router.get("/recipes")
-def get_recipes(db: Session = Depends(get_db)):
+def get_recipes(user_id: str = Depends(verify_access_token),db: Session = Depends(get_db)):
     try:
         recipes = db.query(models.Recipe).all()
         return {"data": recipes}

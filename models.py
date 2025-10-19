@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy import Column, Integer, String, Float, DateTime, UUID
 from datetime import datetime
 from database import Base
 
@@ -19,16 +19,12 @@ class Recipe(Base):
     image_url = Column(String)
     tags = Column(String)
 
-class Authorities(Base):
-    __tablename__ = "authorities"
+class Users(Base):
+    __tablename__  = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    client_id = Column(String, unique=True, index=True)
-    username = Column(String, unique=True, index=True)
-    password = Column(String)
-    role = Column(String, default="user")
-    email = Column(String, unique=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    
+    name = Column(String, index=True)
+    mobile = Column(String, index=True)
+    user_id = Column(UUID, index=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.now)
+    updated_at = Column(DateTime, nullable=False, default=datetime.now)

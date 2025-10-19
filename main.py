@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from database import engine, Base
 
-from routes import recipes, auth
+from routes import recipes, users
 
 # to create the database tables
 Base.metadata.create_all(bind=engine)
@@ -11,7 +11,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # Include routers
-app.include_router(auth.router)
+app.include_router(users.router)
 app.include_router(recipes.router)
 
 
