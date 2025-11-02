@@ -23,8 +23,8 @@ class AuthoritiesSchema(BaseModel):
     client_id: str
     username: str
     password: str
-    role: str
     email: str
+    role: str
     created_at: Optional[str]
     updated_at: Optional[str]
 

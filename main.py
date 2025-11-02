@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from database import engine, Base
-
-from routes import recipes, users
+from routes import users , recipes
 
 # to create the database tables
 Base.metadata.create_all(bind=engine)

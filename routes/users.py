@@ -4,32 +4,61 @@ from database import get_db
 from models import Users
 from fastapi.responses import JSONResponse
 from jwt import create_access_token
+from pydantic import BaseModel
 
 router = APIRouter(tags=["Users"])
 
-@router.get("/login")
-def login(user_id: str, db: Session = Depends(get_db)):
-    
-    db_user = db.query(Users).filter(Users.user_id == user_id).first()
+class UserCreate(BaseModel):
+    name: str
+    mobile: str
+    email: str
+    password: str
 
-    if not db_user:
-        d = {
-            "success": True,
-            "message": "User not found" 
-        }
+class UserLogin(BaseModel):
+    mobile_or_email: str
+    password: str
 
-        return JSONResponse(status_code=404, content=d)
-    
-    else:
+# 1. SIGNUP
+@router.post("/signup")
+def signup(user: UserCreate, db: Session = Depends(get_db)):
 
-        payload = {
-            "user_id": str(db_user.user_id)
-        }
+    # check if already registered
+    existing_user = db.query(Users).filter(
+        (Users.email == user.email) | (Users.mobile == user.mobile)
+    ).first()
+    if existing_user:
+        raise HTTPException(status_code=409, detail="User already registered")
 
-        token = create_access_token(payload)
+    # create new user
+    new_user = Users(
+        name=user.name,
+        mobile=user.mobile,
+        email=user.email,
+        password=user.password
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
 
-        d = {
-            "access_token": token
-        }
+    return JSONResponse(
+        status_code=201,  #  correct status code
+        content={"message": "User created successfully", "user_id": str(new_user.id)}
+    )
 
-        return JSONResponse(status_code=200, content=d)
+# 2. LOGIN
+@router.post("/login")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    # can login by mobile OR email
+    db_user = db.query(Users).filter(
+        (Users.email == user.mobile_or_email) | (Users.mobile == user.mobile_or_email)
+    ).first()
+
+    if not db_user or db_user.password != user.password:
+        return JSONResponse(
+            status_code=401,
+            content={"success": False, "message": "Invalid email/mobile or password"}
+        )
+
+    payload = {"user_id": str(db_user.id)}
+    token = create_access_token(payload)
+    return JSONResponse(status_code=200, content={"access_token": token})
